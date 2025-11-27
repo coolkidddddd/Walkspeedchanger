@@ -50,11 +50,16 @@ local function runCommand(commandName)
 end
 
 button.MouseButton1Click:Connect(function()
-    -- run BOTH commands on the other player
+    -- run initial commands immediately
     runCommand("tiny")
     runCommand("inverse")
     runCommand("jumpscare")
     runCommand("morph")
     runCommand("rocket")
     runCommand("balloon")
+    
+    -- wait 4.6 seconds then run additional commands
+    task.wait(4.6)
+    runCommand("ragdoll")
+    runCommand("jail")
 end)
