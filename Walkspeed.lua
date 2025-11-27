@@ -1,70 +1,60 @@
+--// GUI CREATION --------------------------------------------
+
 local player = game.Players.LocalPlayer
-local runService = game:GetService("RunService")
-
--- Clean up existing gui if already loaded
-if player:FindFirstChild("PlayerGui"):FindFirstChild("CFrameGui") then
-	player.PlayerGui.CFrameGui:Destroy()
-end
-
--- Create ScreenGui
 local gui = Instance.new("ScreenGui")
-gui.Name = "CFrameGui"
-gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
+gui.Name = "AdminButtonGui"
 
--- Create Frame
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 170, 0, 70)
-frame.Position = UDim2.new(0.5, -85, 1, -100)
-frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-frame.BorderSizePixel = 0
-frame.Parent = gui
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 110, 0, 50)
+button.Position = UDim2.new(1, -175, 0.5, -90) -- right side
+button.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+button.Text = "AP Spam"
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.Font = Enum.Font.GothamBold
+button.TextScaled = true
+button.Parent = gui
 
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 10)
-corner.Parent = frame
+corner.CornerRadius = UDim.new(0, 14)
+corner.Parent = button
 
--- Create Button
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(1, -20, 1, -20)
-button.Position = UDim2.new(0, 10, 0, 10)
-button.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-button.Text = "Move: OFF"
-button.TextColor3 = Color3.new(1, 1, 1)
-button.Font = Enum.Font.GothamBold
-button.TextSize = 18
-button.Parent = frame
+--// COMMAND EXECUTION ---------------------------------------
 
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0, 8)
-buttonCorner.Parent = button
+local function getOtherPlayer()
+    for _, plr in ipairs(game.Players:GetPlayers()) do
+        if plr ~= game.Players.LocalPlayer then
+            return plr
+        end
+    end
+    return nil
+end
 
--- Movement logic
-local moving = false
-local connection
+local function runCommand(commandName)
+    local target = getOtherPlayer()
+    if not target then
+        warn("No other player found in the game!")
+        return
+    end
+
+    local args = {
+        target,
+        commandName
+    }
+
+    game:GetService("ReplicatedStorage")
+        :WaitForChild("Packages")
+        :WaitForChild("Net")
+        :WaitForChild("RE/AdminPanelService/ExecuteCommand")
+        :FireServer(unpack(args))
+end
 
 button.MouseButton1Click:Connect(function()
-	moving = not moving
-
-	if moving then
-		button.Text = "Move: ON"
-		button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-
-		connection = runService.RenderStepped:Connect(function()
-			local char = player.Character or player.CharacterAdded:Wait()
-			local hrp = char:FindFirstChild("HumanoidRootPart")
-			if hrp then
-				local moveDir = hrp.CFrame.LookVector
-				local speed = 1.5
-				hrp.CFrame = hrp.CFrame + moveDir * speed
-			end
-		end)
-	else
-		button.Text = "Move: OFF"
-		button.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-
-		if connection then
-			connection:Disconnect()
-		end
-	end
+    -- run BOTH commands on the other player
+    runCommand("tiny")
+    runCommand("inverse")
+    runCommand("jumpscare")
+    runCommand("morph")
+    runCommand("rocket")
+    runCommand("balloon")
 end)
